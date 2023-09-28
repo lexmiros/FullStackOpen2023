@@ -35,11 +35,11 @@ const Header = (props) => {
 }
 
 const Content = (props) => {
-  const partElements = props.parts.map((part, index) => {
+  const partElements = props.parts.map((part, index) => (
     <div key={index}>
-      <Part part={part}/>
+      <Part part={part} />
     </div>
-  });
+  ));
 
   return (
     <div>
