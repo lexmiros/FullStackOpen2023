@@ -4,6 +4,7 @@ import Person from "./components/Person";
 import AddPerson from "./components/AddPerson";
 import SearchFilter from "./components/SearchFilter";
 import phonebook from "./services/phonebook";
+import Notification from "./components/Notification";
 
 function App() {
   const [persons, setPersons] = useState([]);
@@ -11,6 +12,8 @@ function App() {
   const [personsToShow, setPersonsToShow] = useState([...persons]);
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
+  const [popupMessages, setPopupMessages] = useState(null);
+  const [popupMessagesType, setPopupMessagesType] = useState("message")
 
   //Get all people for the phonebook
   const getPersonsHook = () => {
@@ -66,6 +69,11 @@ function App() {
           );
           setNewName("");
           setNewNumber("");
+          setPopupMessagesType("message")
+          setPopupMessages(`Added ${response.name}`)
+          setTimeout( () => {
+            setPopupMessages(null)
+          }, 5000)
         });
       return;
     }
@@ -73,11 +81,14 @@ function App() {
     const newNameObject = { name: newName, number: newNumber };
     phonebook.addPerson(newNameObject).then((response) => {
       setPersons(persons.concat(response));
-      setPersonsToShow(
-        persons.concat(response)
-      );
+      setPersonsToShow(persons.concat(response));
       setNewName("");
       setNewNumber("");
+      setPopupMessagesType("message")
+      setPopupMessages(`Added ${response.name}`)
+      setTimeout( () => {
+        setPopupMessages(null)
+      }, 5000)
     });
   };
 
@@ -100,23 +111,37 @@ function App() {
   };
 
   const onClickDeletePerson = (id) => {
-    phonebook.deletePerson(id)
+    const personToDelete = 
+      persons.filter(person =>
+        person.id === id
+      )
+    const personToDeleteName = personToDelete[0].name
+    phonebook
+      .deletePerson(id)
       .then(() => {
-        const updatedPersons = persons.filter(person => person.id !== id);
+        const updatedPersons = persons.filter((person) => person.id !== id);
         setPersons(updatedPersons);
         setPersonsToShow(updatedPersons);
       })
-      .catch(error => {
-        console.error("Error deleting person:", error);
+      .catch((error) => {
+        const updatedPersons = persons.filter((person) => person.id !== id);
+        setPersons(updatedPersons);
+        setPersonsToShow(updatedPersons);
+        setPopupMessagesType("error");
+        setPopupMessages(`Information of ${personToDeleteName} has already been removed from the server`)
+        setTimeout( () => {
+          setPopupMessages(null)
+        }, 5000)
       });
-  }
-  
+  };
+
   useEffect(getPersonsHook, []);
 
   return (
     <>
       <div>
         <h2>Phonebook</h2>
+        <Notification message={popupMessages} type={popupMessagesType}/>
         <SearchFilter
           nameFilter={nameFilter}
           filterNameHandler={filterNameHandler}
