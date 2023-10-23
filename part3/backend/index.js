@@ -21,6 +21,10 @@ const errorHandler = (error, request, response, next) => {
     return response.status(400).send({error: "Incorrect ID format"})
   }
 
+  if (error.name === "ValidationError") {
+    return response.status(400).send({error: error.message})
+  }
+
   next(error)
 }
 
@@ -73,12 +77,6 @@ app.get("/api/persons/:id", (request, response, next) => {
 app.delete("/api/persons/:id", (request, response, next) => {
   const id = request.params.id
 
-  if (!isValidId(id)) {
-    console.log(`Invalid ObjectId: ${id}`);
-    response.status(400).json({ error: "Invalid ObjectId" });
-    return;
-  }
-
   Person.findByIdAndDelete(id)
     .then(deletedPerson => {
       console.log(`Person with id ${id} deleted`)
@@ -95,25 +93,21 @@ app.post("/api/persons", (request, response, next) => {
     number: body.number
   })
 
-  person.validate()
-  .then( () => {
-    return person.save()
-  })
-  .then(savedPerson => {
-    response.status(201).json(savedPerson)
-  })
-  .catch(error => next(error))
+  person.save()
+    .then(savedPerson => {
+      response.status(201).json(savedPerson)
+    })
+    .catch(error => next(error))
 });
 
 app.put("/api/persons/:id", (request, response, next) => {
-  const body = request.body
+  const { name, number } = request.body
 
-  const newPerson = {
-    name: body.name,
-    number: body.number
-  }
-
-  Person.findByIdAndUpdate(request.params.id, newPerson, {new: true})
+  Person.findByIdAndUpdate(
+    request.params.id,
+    {name, number},
+    {new: true, runValidators: true, context: "query"}
+  )
     .then(updatedPerson => {
       response.json(updatedPerson)
     })

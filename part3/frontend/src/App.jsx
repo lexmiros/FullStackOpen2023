@@ -13,7 +13,7 @@ function App() {
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [popupMessages, setPopupMessages] = useState(null);
-  const [popupMessagesType, setPopupMessagesType] = useState("message")
+  const [popupMessagesType, setPopupMessagesType] = useState("message");
 
   //Get all people for the phonebook
   const getPersonsHook = () => {
@@ -69,27 +69,44 @@ function App() {
           );
           setNewName("");
           setNewNumber("");
-          setPopupMessagesType("message")
-          setPopupMessages(`Added ${response.name}`)
-          setTimeout( () => {
-            setPopupMessages(null)
-          }, 5000)
+          setPopupMessagesType("message");
+          setPopupMessages(`Added ${response.name}`);
+          setTimeout(() => {
+            setPopupMessages(null);
+          }, 5000);
+        })
+        .catch((error) => {
+          setPopupMessagesType("error");
+          setPopupMessages(error.response.data.error);
+          setTimeout(() => {
+            setPopupMessages(null);
+          }, 5000);
         });
       return;
     }
 
     const newNameObject = { name: newName, number: newNumber };
-    phonebook.addPerson(newNameObject).then((response) => {
-      setPersons(persons.concat(response));
-      setPersonsToShow(persons.concat(response));
-      setNewName("");
-      setNewNumber("");
-      setPopupMessagesType("message")
-      setPopupMessages(`Added ${response.name}`)
-      setTimeout( () => {
-        setPopupMessages(null)
-      }, 5000)
-    });
+    
+    phonebook
+      .addPerson(newNameObject)
+      .then((response) => {
+        setPersons(persons.concat(response));
+        setPersonsToShow(persons.concat(response));
+        setNewName("");
+        setNewNumber("");
+        setPopupMessagesType("message");
+        setPopupMessages(`Added ${response.name}`);
+        setTimeout(() => {
+          setPopupMessages(null);
+        }, 5000);
+      })
+      .catch((error) => {
+        setPopupMessagesType("error");
+        setPopupMessages(error.response.data.error);
+        setTimeout(() => {
+          setPopupMessages(null);
+        }, 5000);
+      });
   };
 
   const newNameHandler = (event) => {
@@ -111,11 +128,8 @@ function App() {
   };
 
   const onClickDeletePerson = (id) => {
-    const personToDelete = 
-      persons.filter(person =>
-        person.id === id
-      )
-    const personToDeleteName = personToDelete[0].name
+    const personToDelete = persons.filter((person) => person.id === id);
+    const personToDeleteName = personToDelete[0].name;
     phonebook
       .deletePerson(id)
       .then(() => {
@@ -128,10 +142,12 @@ function App() {
         setPersons(updatedPersons);
         setPersonsToShow(updatedPersons);
         setPopupMessagesType("error");
-        setPopupMessages(`Information of ${personToDeleteName} has already been removed from the server`)
-        setTimeout( () => {
-          setPopupMessages(null)
-        }, 5000)
+        setPopupMessages(
+          `Information of ${personToDeleteName} has already been removed from the server`
+        );
+        setTimeout(() => {
+          setPopupMessages(null);
+        }, 5000);
       });
   };
 
@@ -141,7 +157,7 @@ function App() {
     <>
       <div>
         <h2>Phonebook</h2>
-        <Notification message={popupMessages} type={popupMessagesType}/>
+        <Notification message={popupMessages} type={popupMessagesType} />
         <SearchFilter
           nameFilter={nameFilter}
           filterNameHandler={filterNameHandler}
