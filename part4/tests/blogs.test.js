@@ -95,6 +95,42 @@ test("Test should return 400 error when posting blog with no title or url", asyn
     .expect(400)
 })
 
+test("Test should delete a blog post and return 204 status", async () => {
+  const notesAtStart = await helpers.getAllBlogs()
+  const notesToDelete = notesAtStart[0]
+  
+ await api
+    .delete(`/api/blogs/${notesToDelete.id}`)
+    .expect(204)
+  
+  const allBlogsAfterDeletion = await helpers.getAllBlogs()
+
+  expect(allBlogsAfterDeletion).toHaveLength(notesAtStart.length - 1)
+
+  const allBlogIdsAfterDeletion = allBlogsAfterDeletion.map(blog => blog.id)
+
+  expect(allBlogIdsAfterDeletion).not.toContain(notesToDelete.id)
+})
+
+test("Test should successfully updated blog", async () => {
+  const blogAtStart = await helpers.getAllBlogs()
+  const blogToUpdate = blogAtStart[0]
+ 
+  const newBlog = {
+    title: "Updated blog",
+    author: "New Author",
+    url: "Newurl.com",
+    likes:1001
+  }
+
+  await api
+    .put(`/api/blogs/${blogToUpdate.id}`)
+    .send(newBlog)
+    .expect(200)
+
+  
+})
+
 afterAll(async () => {
   await mongoose.connection.close();
 });
