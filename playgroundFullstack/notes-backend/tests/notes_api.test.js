@@ -69,9 +69,13 @@ describe('viewing a specific note', () => {
 
 describe('addition of a new note', () => {
   test('succeeds with valid data', async () => {
+    const users = await helper.usersInDb()
+    const user = users[0]
+
     const newNote = {
       content: 'async/await simplifies making async calls',
       important: true,
+      userId: user.id
     }
 
     await api
@@ -90,7 +94,11 @@ describe('addition of a new note', () => {
   })
 
   test('fails with status code 400 if data invalid', async () => {
+    const users = await helper.usersInDb()
+    const user = users[0]
+
     const newNote = {
+      userId: user.id,
       important: true
     }
 
