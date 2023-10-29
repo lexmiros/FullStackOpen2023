@@ -1,0 +1,11 @@
+h2 {
+    color: green;
+  
+    font-style: italic;
+}
+
+li {
+color: red;
+padding-top: 3px;
+font-size: 15px;
+}
