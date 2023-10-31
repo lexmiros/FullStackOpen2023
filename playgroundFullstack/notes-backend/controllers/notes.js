@@ -4,11 +4,10 @@ const User = require("../models/user")
 const jwt = require("jsonwebtoken")
 const config = require("../utils/config")
 
-const getTokenFrom = (request) => {
+const getTokenFrom = request => {
   const authorization = request.get("authorization")
-
-  if (authorization && authorization.startsWith("Bearer ")) {
-    return authorization.replace("Bearer", "")
+  if (authorization && authorization.startsWith('Bearer ')) {
+    return authorization.replace("Bearer ", "")
   }
   return null
 }
