@@ -106,7 +106,7 @@ describe('addition of a new note', () => {
     )
   })
 
-  test('fails with status code 400 if data invalid', async () => {
+  test('fails with status code 401 if user invalid', async () => {
     const users = await helper.usersInDb()
     const user = users[0]
 
@@ -118,7 +118,7 @@ describe('addition of a new note', () => {
     await api
       .post('/api/notes')
       .send(newNote)
-      .expect(400)
+      .expect(401)
 
     const notesAtEnd = await helper.notesInDb()
 
