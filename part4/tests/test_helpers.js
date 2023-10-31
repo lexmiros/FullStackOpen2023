@@ -3,6 +3,7 @@ const supertest = require("supertest")
 const app = require("../app")
 const api = supertest(app)
 const Blog = require("../models/blog")
+const User = require("../models/user")
 const helpers = require("./test_helpers")
 
 const blogs = [
@@ -56,12 +57,37 @@ const blogs = [
     }  
   ]
 
+  const initialUsers = [
+    {
+       username: 'root',
+       name: 'Matti Luukkainen',
+       password: 'salainen',
+     },
+     {
+       username: 'boot',
+       name: 'Regal Rowo',
+       password: 'sturb123',
+     },
+     {
+       username: 'toot',
+       name: 'Itsa Dude',
+       password: 'PASSWORD1234',
+     },
+   ]
+
 const getAllBlogs = async () => {
   const allBlogs = await Blog.find({})
   return allBlogs.map(blog => blog.toJSON())
 }
 
+const getAllUsers = async () => {
+  const allUsers = await User.find({})
+  return allUsers.map(user => user.toJSON())
+}
+
 module.exports = {
   blogs,
-  getAllBlogs
+  initialUsers,
+  getAllBlogs,
+  getAllUsers
 }
