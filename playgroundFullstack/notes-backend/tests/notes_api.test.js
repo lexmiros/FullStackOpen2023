@@ -71,6 +71,9 @@ describe('addition of a new note', () => {
   test('succeeds with valid data', async () => {
     const users = await helper.usersInDb()
     const user = users[0]
+    
+    const unhashedUsers = helper.initialUsers
+    const testUser = unhashedUsers[0]
 
     const newNote = {
       content: 'async/await simplifies making async calls',
@@ -78,8 +81,18 @@ describe('addition of a new note', () => {
       userId: user.id
     }
 
+    const userLoginInfo = await api
+      .post("/api/login")
+      .send({username: testUser.username, password: testUser.password})
+      .expect(200)
+      .expect("Content-Type", /application\/json/)
+
+    const userToken = userLoginInfo.body.token
+    console.log(userToken)
+
     await api
       .post('/api/notes')
+      .set('Authorization', `Bearer ${userToken}`)
       .send(newNote)
       .expect(201)
       .expect('Content-Type', /application\/json/)

@@ -12,6 +12,24 @@ const initialNotes = [
   },
 ];
 
+const initialUsers = [
+ {
+    username: 'root',
+    name: 'Matti Luukkainen',
+    password: 'salainen',
+  },
+  {
+    username: 'boot',
+    name: 'Regal Rowo',
+    password: 'sturb123',
+  },
+  {
+    username: 'toot',
+    name: 'Itsa Dude',
+    password: 'PASSWORD1234',
+  },
+]
+
 const nonExistingId = async () => {
   const note = new Note({ content: "willremovethissoon" });
   await note.save();
@@ -32,6 +50,7 @@ const usersInDb = async () => {
 
 module.exports = {
   initialNotes,
+  initialUsers,
   nonExistingId,
   notesInDb,
   usersInDb,

@@ -10,8 +10,8 @@ const initiaBlogs = helpers.blogs;
 beforeEach(async () => {
   await Blog.deleteMany({});
 
-  const blogObjecs = initiaBlogs.map((blog) => new Blog(blog));
-  const blogPromiseArray = blogObjecs.map((blog) => blog.save());
+  const blogObjects = initiaBlogs.map((blog) => new Blog(blog));
+  const blogPromiseArray = blogObjects.map((blog) => blog.save());
   await Promise.all(blogPromiseArray);
 });
 

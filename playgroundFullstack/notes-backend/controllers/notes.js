@@ -10,7 +10,6 @@ const getTokenFrom = (request) => {
   if (authorization && authorization.startsWith("Bearer ")) {
     return authorization.replace("Bearer", "")
   }
-
   return null
 }
 

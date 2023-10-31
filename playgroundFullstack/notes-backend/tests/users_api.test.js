@@ -1,4 +1,4 @@
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcryptjs")
 const User = require("../models/user")
 const supertest = require('supertest')
 const mongoose = require('mongoose')
@@ -7,28 +7,37 @@ const app = require('../app')
 const api = supertest(app)
 
 beforeEach(async () => {
-    await User.deleteMany({})
+    await User.deleteMany({});
+    const users = helper.initialUsers
 
-    const passwordHash = await bcrypt.hash("sekret", 10)
-    const user = new User( {username: "root", passwordHash} )
+    for (const user of users) {
+        const hashedPassword = await bcrypt.hash(user.password, 10)
 
-    await user.save()
-})
+        const userObject = new User({
+            username: user.username,
+            name: user.name,
+            passwordHash: hashedPassword
+        })
 
-test("Test should not create a second user with exisint username", async () => {
+        await userObject.save()
+    }
+});
+
+test("Test should not create a second user with existing username", async () => {
     const user = {
         username: 'root',
         name: 'Matti Luukkainen',
         password: 'salainen',
     }
 
-    const usersBeforePost = helper.usersInDb()
+    const usersBeforePost = await helper.usersInDb()
+    
     const result = await api
         .post("/api/users")
         .send(user)
         .expect(400)
         .expect("Content-Type", /application\/json/)
-    const usersAfterPost = helper.usersInDb()
+    const usersAfterPost = await helper.usersInDb()
     
     expect(result.body.error).toContain("expected `username` to be unique")
     expect(usersBeforePost).toEqual(usersAfterPost)
