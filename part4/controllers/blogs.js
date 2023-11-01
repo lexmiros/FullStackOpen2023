@@ -13,8 +13,7 @@ blogsRouter.post("/", async (request, response, next) => {
     const body = request.body
     const users = await User.find({})
     const user = users[0]
-    console.log(user)
-    console.log(user._id)
+
     const newBlog = new Blog({
         title: body.title,
         author: body.author,
@@ -24,6 +23,10 @@ blogsRouter.post("/", async (request, response, next) => {
     })
 
     const postedBlog = await newBlog.save()
+
+    user.blogs = user.blogs.concat(postedBlog.id)
+    await user.save()
+    
     response.status(201).json(postedBlog)
 })
 

@@ -12,6 +12,7 @@ beforeEach(async () => {
 
   const blogObjects = initiaBlogs.map((blog) => new Blog(blog));
   const blogPromiseArray = blogObjects.map((blog) => blog.save());
+  
   await Promise.all(blogPromiseArray);
 });
 

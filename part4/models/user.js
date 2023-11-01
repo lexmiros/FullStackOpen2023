@@ -16,6 +16,12 @@ const userSchema = new mongoose.Schema({
     required: [true, "Password required"],
     minLength: [3, "Password must be greater than 3 characters"] 
   },
+  blogs: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Blog"
+    }
+  ]
 });
 
 userSchema.plugin(uniqueValidator)
