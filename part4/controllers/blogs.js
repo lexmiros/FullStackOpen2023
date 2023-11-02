@@ -17,7 +17,7 @@ blogsRouter.post("/", async (request, response, next) => {
     const decodedToken = jwt.verify(request.token, config.SECRET)
  
     if (!decodedToken.id) {
-        return response.status(401).json({error: "Invalid tokensdfc"})
+        return response.status(401).json({error: "Invalid token"})
     }
 
     const user = await User.findById(decodedToken.id)
@@ -39,6 +39,27 @@ blogsRouter.post("/", async (request, response, next) => {
 })
 
 blogsRouter.delete("/:id", async (request, response, next) => {
+    const blogToBeDeleted = await Blog.findById(request.params.id)
+
+    if (!blogToBeDeleted) {
+        return response.status(400).json({error: "Blog does not exist"})
+    }
+    if (!request.token) {
+        return response.status(401).json({error: "Invalid token"})
+    }
+
+    const decodedToken = jwt.verify(request.token, config.SECRET)
+    const userIdForRequester = decodedToken.id.toString()
+    const userIdForBlogToBeDeletd = blogToBeDeleted.user.toString()
+
+    console.log(userIdForBlogToBeDeletd)
+    console.log(userIdForRequester)
+    console.log(userIdForBlogToBeDeletd === userIdForRequester)
+
+    if (!(userIdForBlogToBeDeletd === userIdForRequester)) {
+        return response.status(401).json({error: "User must match the user who created the blog"})
+    }
+
     const deletedBlog = await Blog.findByIdAndRemove(request.params.id)
     response.status(204).json(deletedBlog)
 });
