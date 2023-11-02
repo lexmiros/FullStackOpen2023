@@ -14,13 +14,12 @@ blogsRouter.get("/", async (request, response, next) => {
 
 blogsRouter.post("/", async (request, response, next) => {
     const body = request.body
-    const decodedToken = jwt.verify(request.token, config.SECRET)
- 
-    if (!decodedToken.id) {
+
+    if (!request.user) {
         return response.status(401).json({error: "Invalid token"})
     }
 
-    const user = await User.findById(decodedToken.id)
+    const user = await User.findById(request.user)
 
     const newBlog = new Blog({
         title: body.title,
@@ -48,13 +47,9 @@ blogsRouter.delete("/:id", async (request, response, next) => {
         return response.status(401).json({error: "Invalid token"})
     }
 
-    const decodedToken = jwt.verify(request.token, config.SECRET)
-    const userIdForRequester = decodedToken.id.toString()
+    
+    const userIdForRequester = request.user
     const userIdForBlogToBeDeletd = blogToBeDeleted.user.toString()
-
-    console.log(userIdForBlogToBeDeletd)
-    console.log(userIdForRequester)
-    console.log(userIdForBlogToBeDeletd === userIdForRequester)
 
     if (!(userIdForBlogToBeDeletd === userIdForRequester)) {
         return response.status(401).json({error: "User must match the user who created the blog"})

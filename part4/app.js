@@ -28,6 +28,7 @@ app.use(express.json())
 
 app.use(middleware.requestLogger)
 app.use(middleware.tokenExtractor)
+app.use(middleware.extractUser)
 
 app.use('/api/blogs', blogRouter)
 app.use("/api/users", userRouter)
