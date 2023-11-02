@@ -4,15 +4,6 @@ const User = require("../models/user")
 const jwt = require("jsonwebtoken")
 const config = require("../utils/config")
 
-const getTokenFrom = (request) => {
-    const auth = request.get("authorization")
-
-    if (auth && auth.startsWith("Bearer ")) {
-        return auth.replace("Bearer ", "")
-    }
-    
-    return null
-}
 
 blogsRouter.get("/", async (request, response, next) => {
    const blogs = await Blog
@@ -23,9 +14,8 @@ blogsRouter.get("/", async (request, response, next) => {
 
 blogsRouter.post("/", async (request, response, next) => {
     const body = request.body
-    
-    const decodedToken = jwt.verify(getTokenFrom(request), config.SECRET)
-    console.log(decodedToken)
+    const decodedToken = jwt.verify(request.token, config.SECRET)
+ 
     if (!decodedToken.id) {
         return response.status(401).json({error: "Invalid tokensdfc"})
     }
