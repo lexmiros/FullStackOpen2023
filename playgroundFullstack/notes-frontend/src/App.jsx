@@ -1,17 +1,20 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-
-
+import Login from "./components/Login"
 import Note from "./components/Note"
 import noteService from "./services/notes"
 import Notification from "./components/Notification";
 import Footer from "./components/Footer";
+import loginService from "./services/login"
 
 const App = () => {
   const [notes, setNotes] = useState([])
   const [newNote, setNewNote] = useState("")
   const [errorMessage, setErrorMessage]= useState(null)
+  const [username, setUsername] = useState("")
+  const [password, setPassword] = useState("")
+  const [user, setUser] = useState("")
 
+  
   const getAllNotesHook =  () => {
     noteService
       .getAll()
@@ -22,8 +25,6 @@ const App = () => {
   
   useEffect(getAllNotesHook, [])
 
-
-  console.log("render", notes.length, "notes")
 
   const [showAll, setShowAll] = useState(false)
   const notesToShow = showAll
@@ -53,6 +54,26 @@ const App = () => {
     setShowAll(!showAll)
   }
 
+  const handleLogin = async (event) => {
+    event.preventDefault()
+    
+    try{
+      const user = await loginService.login({
+        username, password
+      })
+      setUser(user)
+      setUsername("")
+      setPassword("")
+    } catch (exception) {
+      setErrorMessage("Wrong credentials")
+      setTimeout(()=> {
+        setErrorMessage(null)
+      }, 5000)
+    }
+
+    console.log(user)
+  }
+
   const toggleImportanceOf = (id) => {
     const note = notes.find(note => note.id === id)
     const changedNote = {...note, important: !note.important}
@@ -76,6 +97,8 @@ const App = () => {
     <div>
       <h1>Notes ++</h1>
       <Notification message={errorMessage}/>
+      <Login handleLogin={handleLogin} username={username} setUsername={setUsername} password={password} setPassword={setPassword}/>
+      <br/>
       <button onClick={showAllToggleHandler}>Show {showAll ? "Important" : "All"}</button>
       <ul>
         {notesToShow.map(note => (
