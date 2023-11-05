@@ -21,22 +21,37 @@ const App = () => {
     });
   };
 
+  const checkForLoggedInUser = () => {
+    const loggedUserJosn = window.localStorage.getItem("loggedNoteappUser")
+
+    if (loggedUserJosn) {
+      const user = JSON.parse(loggedUserJosn)
+      setUser(user)
+      noteService.setToken(user)
+    }
+  }
+
+  const logout = () => {
+    window.localStorage.removeItem('loggedNoteappUser')
+    window.location.reload();
+  }
+
   useEffect(getAllNotesHook, []);
+  useEffect(checkForLoggedInUser, []);
 
   const [showAll, setShowAll] = useState(false);
   const notesToShow = showAll ? notes : notes.filter((note) => note.important);
 
-  const addNote = (event) => {
+  const addNote = async (event) => {
     event.preventDefault();
     const noteObject = {
       content: newNote,
       important: Math.random < 0.5,
     };
 
-    noteService.create(noteObject).then((response) => {
-      setNotes(notes.concat(response));
-      setNewNote("");
-    });
+    const response = await noteService.create(noteObject)
+    setNotes(notes.concat(response))
+    setNewNote("")
   };
 
   const handleNoteChange = (event) => {
@@ -55,6 +70,11 @@ const App = () => {
         username,
         password,
       });
+
+      window.localStorage.setItem(
+        "loggedNoteappUser", JSON.stringify(user)
+      )
+
       setUser(user);
       setUsername("");
       setPassword("");
@@ -86,8 +106,9 @@ const App = () => {
   return (
     <div>
       <h1>Notes +++</h1>
+      <button onClick={logout}>Logout</button>
       <Notification message={errorMessage} />
-      {user === null && (
+      {!user && (
         <Login
           handleLogin={handleLogin}
           username={username}
@@ -96,12 +117,16 @@ const App = () => {
           setPassword={setPassword}
         />
       )}
-      {user !== null && (
-        <NoteForm
-          addNote={addNote}
-          newNote={newNote}
-          handleNoteChange={handleNoteChange}
-        />
+      {user && (
+        <div>
+          <p>{user.name} logged in</p>
+          <div />
+          <NoteForm
+            addNote={addNote}
+            newNote={newNote}
+            handleNoteChange={handleNoteChange}
+          />
+        </div>
       )}
       <br />
       <button onClick={showAllToggleHandler}>
