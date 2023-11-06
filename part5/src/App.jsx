@@ -4,6 +4,7 @@ import blogService from './services/blogs'
 import LoginForm from './components/LoginForm'
 import login from "./services/login"
 import CreateBlog from './components/CreateBlog'
+import Notification from './components/Notification'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -15,6 +16,17 @@ const App = () => {
     author: "",
     url: ""
   })
+  const [notification, setNotification] = useState({
+    message: null,
+    isError: null
+  })
+
+  const createTimeoutMessage = (message, isError) => {
+    setNotification({message, isError});
+      setTimeout(() => {
+        setNotification({message: null, isError: null});
+      }, 5000);
+  }
 
   const checkForLoggedInUser = () => {
     const loggedInUser = window.localStorage.getItem("loggedInBlogUser")
@@ -43,13 +55,15 @@ const App = () => {
       window.localStorage.setItem(
         "loggedInBlogUser", JSON.stringify(newUser)
       )
-  
+        
       setUser(newUser)
+      blogService.setToken(newUser.token)
       setUsername("")
       setPassword("")
 
     } catch(exception) {
       console.log(exception)
+      createTimeoutMessage(exception.message, true)
       setUsername("")
       setPassword("")
     }
@@ -62,7 +76,13 @@ const App = () => {
   }
 
   const createNewBlog = async () => {
-    const createdBlog = await blogService.createBlog(newBlog)
+    event.preventDefault()
+    try {
+      const createdBlog = await blogService.createBlog(newBlog)
+      createTimeoutMessage("New blog created", false)
+    } catch(excetpion) {
+      createTimeoutMessage(`Error creating new blog: ${excetpion.message}`, true)
+    }
     setNewBlog({title: "", author: "", url: ""})
   }
 
@@ -76,6 +96,7 @@ const App = () => {
 
   return (
     <div>
+      <Notification notification={notification} />
       {!user && (
         <LoginForm
           loginHandler={loginHandler}
