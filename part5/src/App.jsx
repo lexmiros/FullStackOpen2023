@@ -16,18 +16,13 @@ const App = () => {
     url: ""
   })
 
-  useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )  
-  }, [])
-
   const checkForLoggedInUser = () => {
     const loggedInUser = window.localStorage.getItem("loggedInBlogUser")
     
     if (loggedInUser) {
       const user = JSON.parse(loggedInUser)
       setUser(user)
+      blogService.setToken(user.token)
     }
   }
 
@@ -63,12 +58,19 @@ const App = () => {
   const newBlogHandler = (event) => {
     event.preventDefault()
     const { name, value } = event.target
-    setNewBlog({...blog, [name]: value})
+    setNewBlog({...newBlog, [name]: value})
   }
 
-  const createNewBlog = () => {
-    console.log(newBlog)
+  const createNewBlog = async () => {
+    const createdBlog = await blogService.createBlog(newBlog)
+    setNewBlog({title: "", author: "", url: ""})
   }
+
+  useEffect(() => {
+    blogService.getAll().then(blogs =>
+      setBlogs( blogs )
+    )  
+  }, [])
 
   useEffect(checkForLoggedInUser, [])
 
@@ -88,7 +90,7 @@ const App = () => {
         <div>
           <h2>blogs</h2> <button onClick={logout}>Logout</button>
           <h3>{`${user.name} is logged in`}</h3>
-          <CreateBlog newBlogHandler={newBlogHandler} createNewBlog={createNewBlog} blog={newBlog}/>
+          <CreateBlog newBlogHandler={newBlogHandler} createNewBlog={createNewBlog} newBlog={newBlog}/>
           {blogs.map(blog => (
             <Blog key={blog.id} blog={blog} />
           ))}

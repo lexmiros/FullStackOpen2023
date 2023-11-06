@@ -1,29 +1,30 @@
-const CreateBlog = ( {newBlogHandler, createNewBlog, blog} ) => {
+const CreateBlog = ( {newBlogHandler, createNewBlog, newBlog} ) => {
   return(
     <div>
       <form onSubmit={createNewBlog}>
         Title : <input
         type="text"
         name="title"
-        value={blog.title}
+        value={newBlog.title}
         onChange={newBlogHandler}
         />
         <br/>
         Author: <input
         type="text"
         name="author"
-        value={blog.author}
+        value={newBlog.author}
         onChange={newBlogHandler}
         />
         <br/>
         url: <input
         type="text"
         name="url"
-        value={blog.url}
+        value={newBlog.url}
         onChange={newBlogHandler}
         />
-        <button type="submit">Create blog</button>
+        <button type="submit">Create newBlog</button>
       </form>
+      <br/>
     </div>
   )
 }
