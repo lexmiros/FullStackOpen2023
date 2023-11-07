@@ -6,6 +6,7 @@ import noteService from "./services/notes";
 import Notification from "./components/Notification";
 import Footer from "./components/Footer";
 import loginService from "./services/login";
+import Togglable from "./components/Toggleable";
 
 const App = () => {
   const [notes, setNotes] = useState([]);
@@ -14,6 +15,7 @@ const App = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
+  const [loginVisible, setLoginVisible] = useState(false)
 
   const getAllNotesHook = () => {
     noteService.getAll().then((response) => {
@@ -27,7 +29,7 @@ const App = () => {
     if (loggedUserJosn) {
       const user = JSON.parse(loggedUserJosn)
       setUser(user)
-      noteService.setToken(user)
+      noteService.setToken(user.token)
     }
   }
 
@@ -78,6 +80,7 @@ const App = () => {
       setUser(user);
       setUsername("");
       setPassword("");
+      noteService.setToken(user.token)
     } catch (exception) {
       setErrorMessage("Wrong credentials");
       setTimeout(() => {
@@ -103,12 +106,18 @@ const App = () => {
       });
   };
 
+  const showLoginHandler = () => {
+    const inverseShowLogin = !loginVisible
+    setLoginVisible(inverseShowLogin)
+  }
+
+
   return (
     <div>
       <h1>Notes +++</h1>
-      <button onClick={logout}>Logout</button>
       <Notification message={errorMessage} />
-      {!user && (
+      {!user && 
+        <Togglable buttonLabel='login'>
         <Login
           handleLogin={handleLogin}
           username={username}
@@ -116,7 +125,9 @@ const App = () => {
           password={password}
           setPassword={setPassword}
         />
-      )}
+        </Togglable>
+      }
+      
       {user && (
         <div>
           <p>{user.name} logged in</p>
@@ -126,6 +137,7 @@ const App = () => {
             newNote={newNote}
             handleNoteChange={handleNoteChange}
           />
+          <button onClick={logout}>Logout</button>
         </div>
       )}
       <br />
