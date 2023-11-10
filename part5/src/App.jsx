@@ -85,15 +85,26 @@ const App = () => {
     await blogService.updateBlog(newBlog)
 
     const newBlogs = blogs.map(blog => blog.id === newBlog.id ? newBlog : blog)
+    newBlogs.sort((a, b) => b.likes - a.likes)
     setBlogs(newBlogs)
-
   }
 
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )  
-  }, [])
+    const getAllBlogs = async () => {
+      try {
+        const allBlogs = await blogService.getAll();
+        allBlogs.sort((a, b) => b.likes - a.likes);
+        console.log(allBlogs)
+        setBlogs(allBlogs);
+      } catch (error) {
+        console.error("Error fetching and setting blogs:", error);
+      }
+    };
+  
+    getAllBlogs(); 
+  
+  }, []);
+  
 
   useEffect(checkForLoggedInUser, [])
 
