@@ -10,7 +10,7 @@ const Blog = ({ blog, blogs, setBlogs }) => {
     marginBottom: 5
   }
 
-  const incrementLikes = async (blog) => {
+  const incrementLikes = async () => {
     const newBlogLikes = blog.likes + 1
     const newBlog = {...blog, likes: newBlogLikes}
     await blogService.updateBlog(newBlog)
@@ -20,16 +20,24 @@ const Blog = ({ blog, blogs, setBlogs }) => {
     setBlogs(newBlogs)
   }
 
+  const deleteBlog = async () => {
+    const deletedBlog = await blogService.deleteBlog(blog)
+    const updatedBlogs = blogs.filter(updatedBlog => 
+      updatedBlog.id !== blog.id)
+    console.log(updatedBlogs)
+
+    setBlogs(updatedBlogs)
+  }
+
   return(
     <div style={blogStyle}>
-      {blog.title} 
+      {blog.title} <button onClick={deleteBlog}>Delete Blog</button>
       <Togglable buttonLabel={"View"}>
       Author:{blog.author} <br/> 
       URL: {blog.url} <br/> 
-      Like: {blog.likes} <button onClick={() => incrementLikes(blog)}>Like</button> <br/> 
+      Like: {blog.likes} <button onClick={incrementLikes}>Like</button> <br/> 
       </Togglable>
       <br/>
-      
     </div> 
   ) 
 }
