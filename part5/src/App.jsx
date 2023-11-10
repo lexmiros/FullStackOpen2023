@@ -1,25 +1,23 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import LoginForm from './components/LoginForm'
 import login from "./services/login"
 import CreateBlog from './components/CreateBlog'
 import Notification from './components/Notification'
+import Togglable from './components/Toggleable'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [user, setUser] = useState(null)
-  const [newBlog, setNewBlog] = useState({
-    title: "",
-    author: "",
-    url: ""
-  })
+  
   const [notification, setNotification] = useState({
     message: null,
     isError: null
   })
+  const createBlogRef = useRef()
 
   const createTimeoutMessage = (message, isError) => {
     setNotification({message, isError});
@@ -75,15 +73,16 @@ const App = () => {
     setNewBlog({...newBlog, [name]: value})
   }
 
-  const createNewBlog = async () => {
+  const createNewBlog = async (newBlog) => {
     event.preventDefault()
     try {
+      createBlogRef.current.toggleVisibility()
       const createdBlog = await blogService.createBlog(newBlog)
       createTimeoutMessage("New blog created", false)
+      setBlogs(blogs.concat(createdBlog))
     } catch(excetpion) {
       createTimeoutMessage(`Error creating new blog: ${excetpion.message}`, true)
     }
-    setNewBlog({title: "", author: "", url: ""})
   }
 
   useEffect(() => {
@@ -111,7 +110,9 @@ const App = () => {
         <div>
           <h2>blogs</h2> <button onClick={logout}>Logout</button>
           <h3>{`${user.name} is logged in`}</h3>
-          <CreateBlog newBlogHandler={newBlogHandler} createNewBlog={createNewBlog} newBlog={newBlog}/>
+          <Togglable buttonLabel={"Create a new blog"} ref={createBlogRef}>
+            <CreateBlog createNewBlog={createNewBlog}/>
+          </Togglable>
           {blogs.map(blog => (
             <Blog key={blog.id} blog={blog} />
           ))}
