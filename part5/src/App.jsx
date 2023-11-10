@@ -67,12 +67,6 @@ const App = () => {
     }
   }
 
-  const newBlogHandler = (event) => {
-    event.preventDefault()
-    const { name, value } = event.target
-    setNewBlog({...newBlog, [name]: value})
-  }
-
   const createNewBlog = async (newBlog) => {
     event.preventDefault()
     try {
@@ -83,6 +77,16 @@ const App = () => {
     } catch(excetpion) {
       createTimeoutMessage(`Error creating new blog: ${excetpion.message}`, true)
     }
+  }
+
+  const incrementLikes = async (blog) => {
+    const newBlogLikes = blog.likes + 1
+    const newBlog = {...blog, likes: newBlogLikes}
+    await blogService.updateBlog(newBlog)
+
+    const newBlogs = blogs.map(blog => blog.id === newBlog.id ? newBlog : blog)
+    setBlogs(newBlogs)
+
   }
 
   useEffect(() => {
@@ -114,7 +118,7 @@ const App = () => {
             <CreateBlog createNewBlog={createNewBlog}/>
           </Togglable>
           {blogs.map(blog => (
-            <Blog key={blog.id} blog={blog} />
+            <Blog key={blog.id} blog={blog} incrementLikes={incrementLikes}/>
           ))}
         </div>
       )}
