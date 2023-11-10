@@ -21,11 +21,16 @@ const Blog = ({ blog, blogs, setBlogs }) => {
   }
 
   const deleteBlog = async () => {
+    const userConfirm = window.confirm(`Are you sure you want to delete ${blog.title}`)
+
+    if (!userConfirm) {
+      return
+    }
+    
     const deletedBlog = await blogService.deleteBlog(blog)
     const updatedBlogs = blogs.filter(updatedBlog => 
       updatedBlog.id !== blog.id)
     console.log(updatedBlogs)
-
     setBlogs(updatedBlogs)
   }
 
